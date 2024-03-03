@@ -6,7 +6,7 @@ This Python script is a simple network scanner that allows users to discover dev
 - **Device Discovery:** Users can scan a network range to discover devices and their corresponding MAC addresses.
 - **Port Scanning:** Users can scan for open ports on a specified device within a network range.
 - **Port Scan Options:** Supports scanning the top 100 ports, top 1000 ports, or a custom range of ports.
-- **Output to File:** Results of the port scan are saved to a text file, allowing users to review the findings later.
+- **Output to File:** Results of the port scan are saved to a text file (**Live**), allowing users to review the findings later.
 
 ### Usage:
 1. Run the script and choose the desired option from the main menu.
