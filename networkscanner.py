@@ -13,7 +13,7 @@ from scapy.all import ARP, Ether, srp
 # Function to handle Ctrl+C interrupt
 def handler(signum, frame):
     print(Fore.RED + "\nExiting..." + Fore.RESET)
-    sys.exit(1)
+    os._exit(1)
 
 signal.signal(signal.SIGINT, handler)
 
@@ -62,30 +62,29 @@ def scan_ports_from_file(host, file_path, file_name):
 # Function to scan ports within a specified range
 def scan_ports(host, start_port, end_port, file_name):
     print(Fore.GREEN + f"[+] Starting Port Scan on {host}..." + Fore.RESET)
-
     open_ports = False
-    for port in range(start_port, end_port + 1):
+    with ThreadPoolExecutor(max_workers=20) as executor:
         try:
-            if is_port_open(host, port):
-                open_ports = True
-                result = f"[+] {host}:{port} is open"
-            else:
-                result = f"[!] {host}:{port} is closed"
+            for port in range(start_port, end_port + 1):
+                future = executor.submit(is_port_open, host, port)
+                if future.result():
+                    open_ports = True
+                    result = f"[+] {host}:{port} is open"
+                else:
+                    result = f"[!] {host}:{port} is closed"
 
-            print(result)
-            save_output(file_name, result)
+                print(result)
+                save_output(file_name, result)
         except KeyboardInterrupt:
-            print(Fore.RED + "\nExiting..." + Fore.RESET)
-            sys.exit(0)
-
+            print(Fore.RED + "\nPort scanning interrupted by user." + Fore.RESET)
+            os._exit(0)
     if not open_ports:
         print(Fore.RED + "No open ports found. Better luck next time!" + Fore.RESET)
-
 # Initialize colorama for colored output
 init()
 
 # Print ASCII banner
-ascii_banner = pyfiglet.figlet_format("FUCKER")
+ascii_banner = pyfiglet.figlet_format("SCANNER BY KK")
 
 # Main menu
 while True:
@@ -156,6 +155,7 @@ while True:
             try:
                 start_port = int(input("Enter the starting port: "))
                 end_port = int(input("Enter the ending port: "))
+                print("Press Ctrl+C to stop the port scan.")
                 scan_ports(host, start_port, end_port, file_name)
             except KeyboardInterrupt:
                 print(Fore.RED + "\nExiting..." + Fore.RESET)
